@@ -1,0 +1,41 @@
+version: '2'
+
+services:
+  AngPOC:
+    image: composeangular
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3001:80"
+    networks:
+      - mynetwork
+    volumes:
+      - static:/usr/share/nginx
+
+  AuthPOC:
+    image: authservice
+    build:
+      context: ../POC_1/AuthPoc/JWTAuth_Validation
+      dockerfile: Dockerfile
+    ports:
+      - "49356:80"
+    networks:
+      - mynetwork
+    volumes:
+
+
+  EmpRegPOC:
+    image: empregservice
+    build:
+      context: ../POC_1/EmployeeRegistrationServiceAPI
+      dockerfile: Dockerfile
+    ports:
+      - "28962:80"
+    networks:
+      - mynetwork
+    volumes:
+
+
+volumes:
+  static:
