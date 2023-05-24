@@ -11,7 +11,7 @@ export class EmplregService {
   constructor(private http: HttpClient) { }
 
   public regProcess(data: any): Observable<any> {
-    return this.http.post("http://34.173.246.120:28962/api/PlaceInfo", data, { responseType: 'json' }).pipe(
+	  return this.http.post("http://localhost:28962/api/PlaceInfo", data, { responseType: 'json' }).pipe(
       catchError(error => {
         this.errorMsg = error.message;
         return of([this.getServerErrorMessage]);
