@@ -1,0 +1,74 @@
+pipeline {
+    agent any
+
+    environment {
+        HARBOR_REGISTRY = '10.3.17.126'
+        IMAGE_NAME = '10.3.17.126/techpro/poc6ang:latest'
+        HARBOR_CREDENTIALS = credentials('harbor_id')
+
+        HTTP_PROXY  = 'http://10.120.125.146:8080'
+        HTTPS_PROXY = 'http://10.120.125.146:8080'
+        NO_PROXY    = 'localhost,127.0.0.1,10.3.17.126'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/sumit871996/poc6ang.git'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh '''
+                    docker image build \
+                      --build-arg HTTP_PROXY="$HTTP_PROXY" \
+                      --build-arg HTTPS_PROXY="$HTTPS_PROXY" \
+                      --build-arg NO_PROXY="$NO_PROXY" \
+                      --tag "$IMAGE_NAME" .
+                '''
+            }
+        }
+
+        stage('Docker Push') {
+            steps {
+                sh '''
+                    echo "$HARBOR_CREDENTIALS_PSW" |
+                      docker login "$HARBOR_REGISTRY" \
+                        --username "$HARBOR_CREDENTIALS_USR" \
+                        --password-stdin
+
+                    docker image push "$IMAGE_NAME"
+                '''
+            }
+        }
+
+        stage('Remove Existing Container') {
+            steps {
+                sh '''
+                    docker container rm --force poc6angcon \
+                      2>/dev/null || true
+                '''
+            }
+        }
+
+        stage('Docker Run') {
+            steps {
+                sh '''
+                    docker container run \
+                      --detach \
+                      --publish 4200:80 \
+                      --name poc6angcon \
+                      "$IMAGE_NAME"
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            sh 'docker logout "$HARBOR_REGISTRY" || true'
+        }
+    }
+}
