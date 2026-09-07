@@ -15,7 +15,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/sumit871996/poc6ang.git'
+                    url: 'https://github.com/sumit871996/poc6argoang.git'
             }
         }
 
