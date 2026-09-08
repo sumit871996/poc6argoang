@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         HARBOR_REGISTRY = '10.3.17.126'
-        IMAGE_NAME = '10.3.17.126/techpro/poc6ang:latest'
         HARBOR_CREDENTIALS = credentials('harbor_id')
 
         HTTP_PROXY  = 'http://10.120.125.146:8080'
@@ -18,6 +17,16 @@ pipeline {
                     url: 'https://github.com/sumit871996/poc6argoang.git'
             }
         }
+stage('Prepare Image Tag') {
+    steps {
+        script {
+            env.APP_VERSION = sh(
+                script: "node -p \"require('./package.json').version\"",
+                returnStdout: true
+            ).trim()
+        }
+    }
+}
 
         stage('Docker Build') {
             steps {
@@ -26,7 +35,7 @@ pipeline {
                       --build-arg HTTP_PROXY="$HTTP_PROXY" \
                       --build-arg HTTPS_PROXY="$HTTPS_PROXY" \
                       --build-arg NO_PROXY="$NO_PROXY" \
-                      --tag "$IMAGE_NAME" .
+                      --tag "$HARBOR_REGISTRY"/techpro/poc6ang:"$APP_VERSION" .
                 '''
             }
         }
@@ -39,7 +48,7 @@ pipeline {
                         --username "$HARBOR_CREDENTIALS_USR" \
                         --password-stdin
 
-                    docker image push "$IMAGE_NAME"
+                    docker image push "$HARBOR_REGISTRY"/techpro/poc6ang:"$APP_VERSION"
                 '''
             }
         }
@@ -60,7 +69,7 @@ pipeline {
                       --detach \
                       --publish 4200:80 \
                       --name poc6angcon \
-                      "$IMAGE_NAME"
+                      "$HARBOR_REGISTRY"/techpro/poc6ang:"$APP_VERSION"
                 '''
             }
         }
