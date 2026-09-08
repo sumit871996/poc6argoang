@@ -20,10 +20,12 @@ pipeline {
 stage('Prepare Image Tag') {
     steps {
         script {
-            env.APP_VERSION = sh(
-                script: "node -p \"require('./package.json').version\"",
-                returnStdout: true
-            ).trim()
+            def packageJson = readJSON file: 'package.json'
+            env.APP_VERSION = packageJson.version
+
+            if (!(env.APP_VERSION ==~ /^\d+\.\d+\.\d+([+-][0-9A-Za-z.-]+)?$/)) {
+                error "Invalid application version: ${env.APP_VERSION}"
+            }
         }
     }
 }
