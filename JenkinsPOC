@@ -17,6 +17,7 @@ pipeline {
              //       url: 'https://github.com/sumit871996/poc6argoang.git'
             //}
         //}
+// dummy push
 stage('Prepare Image Tag') {
     steps {
         script {
