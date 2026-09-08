@@ -11,12 +11,12 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'master',
-                    url: 'https://github.com/sumit871996/poc6argoang.git'
-            }
-        }
+       // stage('Checkout') {
+         //   steps {
+           //     git branch: 'master',
+             //       url: 'https://github.com/sumit871996/poc6argoang.git'
+            //}
+        //}
 stage('Prepare Image Tag') {
     steps {
         script {
